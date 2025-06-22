@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'bloc/expense_bloc.dart';
 import 'bloc/expense_event.dart';
 import 'services/storage_service.dart';
@@ -7,7 +8,6 @@ import 'services/currency_service.dart';
 import 'screens/dashboard_screen.dart';
 import 'utils/sample_data.dart';
 import 'utils/app_colors.dart';
-import 'models/expense.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -31,26 +31,33 @@ class MainApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MultiBlocProvider(
-      providers: [
-        BlocProvider<ExpenseBloc>(
-          create: (context) => ExpenseBloc(
-            storageService: StorageService(),
-            currencyService: CurrencyService(),
-          )..add(const LoadExpenses()),
-        ),
-      ],
-      child: MaterialApp(
-        title: 'Expense Tracker Lite',
-        theme: ThemeData(
-          primaryColor: AppColors.primary,
-          colorScheme: ColorScheme.fromSeed(seedColor: AppColors.primary),
-          visualDensity: VisualDensity.adaptivePlatformDensity,
-          useMaterial3: true,
-        ),
-        home: const DashboardScreen(),
-        debugShowCheckedModeBanner: false,
-      ),
+    return ScreenUtilInit(
+      designSize: const Size(375, 812), // iPhone 11 Pro design size
+      minTextAdapt: true,
+      splitScreenMode: true,
+      builder: (context, child) {
+        return MultiBlocProvider(
+          providers: [
+            BlocProvider<ExpenseBloc>(
+              create: (context) => ExpenseBloc(
+                storageService: StorageService(),
+                currencyService: CurrencyService(),
+              )..add(const LoadExpenses()),
+            ),
+          ],
+          child: MaterialApp(
+            title: 'Expense Tracker Lite',
+            theme: ThemeData(
+              primaryColor: AppColors.primary,
+              colorScheme: ColorScheme.fromSeed(seedColor: AppColors.primary),
+              visualDensity: VisualDensity.adaptivePlatformDensity,
+              useMaterial3: true,
+            ),
+            home: const DashboardScreen(),
+            debugShowCheckedModeBanner: false,
+          ),
+        );
+      },
     );
   }
 }

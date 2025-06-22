@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:intl/intl.dart';
 import '../models/expense.dart';
 import '../models/category.dart';
@@ -26,7 +27,7 @@ class ExpenseItemWidget extends StatelessWidget {
     final currencySymbol = currencyService.getCurrencySymbol(expense.currency);
 
     return Container(
-      margin: const EdgeInsets.only(bottom: AppDimensions.paddingL),
+      margin: EdgeInsets.only(bottom: 16.h),
       decoration: BoxDecoration(
         color: AppColors.cardBackground,
         borderRadius: BorderRadius.circular(AppDimensions.radiusL),
@@ -46,7 +47,7 @@ class ExpenseItemWidget extends StatelessWidget {
       child: ListTile(
         onTap: onTap,
         onLongPress: onLongPress,
-        contentPadding: const EdgeInsets.all(AppDimensions.paddingL),
+        contentPadding: EdgeInsets.all(16.w),
         leading: _buildCategoryIcon(category),
         title: CustomText(
           expense.category,
@@ -63,8 +64,8 @@ class ExpenseItemWidget extends StatelessWidget {
 
   Widget _buildCategoryIcon(Category? category) {
     return Container(
-      width: AppDimensions.categoryIconSize,
-      height: AppDimensions.categoryIconSize,
+      width: 52.w,
+      height: 52.h,
       decoration: BoxDecoration(
         color: category?.color.withOpacity(0.12) ?? AppColors.textSecondary.withOpacity(0.12),
         borderRadius: BorderRadius.circular(AppDimensions.radiusL),
@@ -79,7 +80,7 @@ class ExpenseItemWidget extends StatelessWidget {
       child: Icon(
         category?.icon ?? Icons.receipt,
         color: category?.color ?? AppColors.textSecondary,
-        size: 26,
+        size: 26.sp,
       ),
     );
   }
@@ -88,12 +89,12 @@ class ExpenseItemWidget extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const SizedBox(height: AppDimensions.paddingXS),
+        SizedBox(height: 4.h),
         CustomText(
           'Manually',
           variant: TextVariant.bodySmall,
         ),
-        const SizedBox(height: 2),
+        SizedBox(height: 2.h),
         CustomText(
           DateFormat('Today hh:mm a').format(expense.date),
           variant: TextVariant.bodySmall,

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import '../../utils/app_colors.dart';
 import '../../utils/app_dimensions.dart';
 import '../../widgets/custom_text_widget.dart';
@@ -16,20 +17,20 @@ class DashboardHeaderWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      height: AppDimensions.headerHeight,
-      decoration: const BoxDecoration(
+      height: 250.h,
+      decoration: BoxDecoration(
         color: AppColors.primary,
         borderRadius: BorderRadius.only(
           bottomLeft: Radius.circular(AppDimensions.radiusM),
           bottomRight: Radius.circular(AppDimensions.radiusM),
         ),
       ),
-      padding: const EdgeInsets.all(AppDimensions.paddingXL),
+      padding: EdgeInsets.all(20.w),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           _buildProfileSection(),
-          const SizedBox(width: AppDimensions.paddingL),
+          SizedBox(width: 16.w),
           Expanded(child: _buildUserGreeting()),
           _buildFilterDropdown(),
         ],
@@ -39,8 +40,8 @@ class DashboardHeaderWidget extends StatelessWidget {
 
   Widget _buildProfileSection() {
     return Container(
-      width: AppDimensions.profileAvatarSize,
-      height: AppDimensions.profileAvatarSize,
+      width: 54.w,
+      height: 54.h,
       decoration: BoxDecoration(
         shape: BoxShape.circle,
         border: Border.all(color: AppColors.borderMedium, width: 2),
@@ -52,14 +53,13 @@ class DashboardHeaderWidget extends StatelessWidget {
           ),
         ],
       ),
-      child: const CircleAvatar(
-        radius: 25,
-
+      child: CircleAvatar(
+        radius: 27.r,
         backgroundColor: AppColors.primary,
         child: Icon(
           Icons.person,
           color: AppColors.textOnPrimary,
-          size: AppDimensions.iconL,
+          size: 28.sp,
         ),
       ),
     );
@@ -68,8 +68,10 @@ class DashboardHeaderWidget extends StatelessWidget {
   Widget _buildUserGreeting() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
+      mainAxisAlignment: MainAxisAlignment.center,
       children: [
         CustomText('Good Morning', variant: TextVariant.onPrimarySmall),
+        SizedBox(height: 8.h),
         CustomText('Shihab Rahman', variant: TextVariant.onPrimaryLarge),
       ],
     );
@@ -93,8 +95,8 @@ class DashboardHeaderWidget extends StatelessWidget {
               return DropdownMenuItem<String>(
                 value: value,
                 child: Padding(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: AppDimensions.paddingL,
+                  padding: EdgeInsets.symmetric(
+                    horizontal: 16.w,
                     vertical: 0,
                   ),
                   child: CustomText(value, variant: TextVariant.labelMedium),

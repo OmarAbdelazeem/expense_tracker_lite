@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:intl/intl.dart';
 import '../../bloc/expense_bloc.dart';
 import '../../bloc/expense_state.dart';
@@ -25,8 +26,8 @@ class BalanceCardWidget extends StatelessWidget {
         double totalBalance = totalIncome - totalExpenses;
 
         return Container(
-          height: AppDimensions.balanceCardHeight,
-          margin: const EdgeInsets.symmetric(horizontal: AppDimensions.paddingXL),
+          height: 200.h,
+          margin: EdgeInsets.symmetric(horizontal: 20.w),
           decoration: BoxDecoration(
             color: AppColors.primaryLight,
             borderRadius: BorderRadius.circular(AppDimensions.radiusXL),
@@ -59,27 +60,26 @@ class BalanceCardWidget extends StatelessWidget {
   }
 
   Widget _buildMoreOptionsButton() {
-    return const Positioned(
-      top: AppDimensions.paddingL,
-      right: AppDimensions.paddingL,
+    return Positioned(
+      top: 16.h,
+      right: 16.w,
       child: Icon(
         Icons.more_horiz,
         color: AppColors.textOnPrimary,
-        size: AppDimensions.iconL,
+        size: 28.sp,
       ),
     );
   }
 
   Widget _buildBalanceContent(double totalBalance, double totalIncome, double totalExpenses) {
     return Padding(
-      padding: const EdgeInsets.all(AppDimensions.paddingXL),
+      padding: EdgeInsets.all(20.w),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
         children: [
           _buildBalanceHeader(),
-          const SizedBox(height: AppDimensions.paddingS),
           _buildBalanceAmount(totalBalance),
-          const SizedBox(height: AppDimensions.paddingXXL),
           _buildBalanceItems(totalIncome, totalExpenses),
         ],
       ),
@@ -93,11 +93,11 @@ class BalanceCardWidget extends StatelessWidget {
           'Total Balance',
           variant: TextVariant.onPrimaryMedium,
         ),
-        const SizedBox(width: AppDimensions.paddingS),
-        const Icon(
+        SizedBox(width: 8.w),
+        Icon(
           Icons.keyboard_arrow_up,
           color: AppColors.textOnPrimary,
-          size: AppDimensions.iconS,
+          size: 20.sp,
         ),
       ],
     );

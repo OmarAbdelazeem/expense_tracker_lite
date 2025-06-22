@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import '../bloc/expense_bloc.dart';
 import '../bloc/expense_event.dart';
 import '../utils/app_colors.dart';
@@ -104,7 +105,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
         children: [
           // Blue background
           Container(
-            height: MediaQuery.of(context).size.height * 0.6,
+            height: 0.6.sh,
             decoration: const BoxDecoration(color: AppColors.primary),
           ),
           SafeArea(
@@ -112,7 +113,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
               children: [
                 // White background for lower section
                 Container(
-                  height: MediaQuery.of(context).size.height * 0.6,
+                  height: 0.6.sh,
                   decoration: const BoxDecoration(color: AppColors.cardBackground),
                 ),
                 Column(
@@ -129,12 +130,12 @@ class _DashboardScreenState extends State<DashboardScreen> {
                     ),
                   ],
                 ),
-                // Positioned balance card
-                const Positioned(
-                  top: 100,
+                // Positioned balance card with responsive positioning
+                Positioned(
+                  top: 100.h,
                   left: 0,
                   right: 0,
-                  child: BalanceCardWidget(),
+                  child: const BalanceCardWidget(),
                 ),
               ],
             ),

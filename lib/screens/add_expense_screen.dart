@@ -1,17 +1,14 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
 import '../bloc/expense_bloc.dart';
 import '../bloc/expense_event.dart';
-import '../bloc/expense_state.dart';
 import '../models/expense.dart';
 import '../models/category.dart';
 import '../services/currency_service.dart';
-import '../utils/app_colors.dart';
-import '../utils/app_dimensions.dart';
-import '../widgets/custom_text_widget.dart';
 
 class AddExpenseScreen extends StatefulWidget {
   const AddExpenseScreen({super.key});
@@ -137,85 +134,46 @@ class _AddExpenseScreenState extends State<AddExpenseScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: const Color(0xFFF5F6FA),
       appBar: AppBar(
-        backgroundColor: Colors.white,
+        backgroundColor: const Color(0xFFF5F6FA),
         elevation: 0,
         leading: IconButton(
           icon: const Icon(Icons.arrow_back, color: Colors.black),
-          onPressed: () => Navigator.of(context).pop(),
+          onPressed: () => Navigator.pop(context),
         ),
-        title: CustomText(
+        title: const Text(
           'Add Expense',
-          variant: TextVariant.h4,
-          color: AppColors.textPrimary,
+          style: TextStyle(
+            color: Colors.black,
+            fontSize: 18,
+            fontWeight: FontWeight.w600,
+          ),
         ),
         centerTitle: true,
       ),
       body: Form(
         key: _formKey,
         child: SingleChildScrollView(
-          padding: const EdgeInsets.all(20),
+          padding: EdgeInsets.all(20.w),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              _buildCategorySelection(),
-              const SizedBox(height: 24),
               _buildAmountField(),
-              const SizedBox(height: 24),
+              SizedBox(height: 24.h),
+              _buildCurrencyField(),
+              SizedBox(height: 24.h),
               _buildDateField(),
-              const SizedBox(height: 24),
-              _buildReceiptUpload(),
-              const SizedBox(height: 24),
+              SizedBox(height: 32.h),
               _buildCategoryIcons(),
-              const SizedBox(height: 32),
+              SizedBox(height: 24.h),
+              _buildReceiptUpload(),
+              SizedBox(height: 32.h),
               _buildSaveButton(),
             ],
           ),
         ),
       ),
-    );
-  }
-
-  Widget _buildCategorySelection() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        CustomText(
-          'Categories',
-          variant: TextVariant.labelLarge,
-        ),
-        const SizedBox(height: 12),
-        Container(
-          width: double.infinity,
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-          decoration: BoxDecoration(
-            color: const Color(0xFFF5F6FA),
-            borderRadius: BorderRadius.circular(12),
-          ),
-          child: DropdownButtonHideUnderline(
-            child: DropdownButton<Category>(
-              value: _selectedCategory,
-              hint: const Text(
-                'Entertainment',
-                style: TextStyle(color: Colors.grey),
-              ),
-              icon: const Icon(Icons.keyboard_arrow_down),
-              items: Category.predefinedCategories.map((category) {
-                return DropdownMenuItem<Category>(
-                  value: category,
-                  child: Text(category.name),
-                );
-              }).toList(),
-              onChanged: (category) {
-                setState(() {
-                  _selectedCategory = category;
-                });
-              },
-            ),
-          ),
-        ),
-      ],
     );
   }
 
@@ -231,65 +189,71 @@ class _AddExpenseScreenState extends State<AddExpenseScreen> {
             color: Colors.black87,
           ),
         ),
-        const SizedBox(height: 12),
-        Row(
-          children: [
-            Expanded(
-              flex: 3,
-              child: TextFormField(
-                controller: _amountController,
-                keyboardType: TextInputType.number,
-                decoration: InputDecoration(
-                  hintText: '\$50,000',
-                  hintStyle: const TextStyle(color: Colors.grey),
-                  filled: true,
-                  fillColor: const Color(0xFFF5F6FA),
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
-                    borderSide: BorderSide.none,
-                  ),
-                ),
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Please enter amount';
-                  }
-                  if (double.tryParse(value) == null) {
-                    return 'Please enter valid amount';
-                  }
-                  return null;
-                },
-              ),
+        SizedBox(height: 12.h),
+        TextFormField(
+          controller: _amountController,
+          keyboardType: const TextInputType.numberWithOptions(decimal: true),
+          decoration: InputDecoration(
+            hintText: '0.00',
+            prefixText: '\$ ',
+            filled: true,
+            fillColor: const Color(0xFFF5F6FA),
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12),
+              borderSide: BorderSide.none,
             ),
-            const SizedBox(width: 12),
-            Expanded(
-              flex: 1,
-              child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 12),
-                decoration: BoxDecoration(
-                  color: const Color(0xFFF5F6FA),
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: DropdownButtonHideUnderline(
-                  child: DropdownButton<String>(
-                    value: _selectedCurrency,
-                    items: CurrencyService.supportedCurrencies.map((currency) {
-                      return DropdownMenuItem<String>(
-                        value: currency,
-                        child: Text(currency),
-                      );
-                    }).toList(),
-                    onChanged: (currency) {
-                      if (currency != null) {
-                        setState(() {
-                          _selectedCurrency = currency;
-                        });
-                      }
-                    },
-                  ),
-                ),
-              ),
+          ),
+          validator: (value) {
+            if (value == null || value.isEmpty) {
+              return 'Please enter an amount';
+            }
+            if (double.tryParse(value) == null) {
+              return 'Please enter a valid number';
+            }
+            if (double.parse(value) <= 0) {
+              return 'Amount must be greater than 0';
+            }
+            return null;
+          },
+        ),
+      ],
+    );
+  }
+
+  Widget _buildCurrencyField() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Text(
+          'Currency',
+          style: TextStyle(
+            fontSize: 16,
+            fontWeight: FontWeight.w600,
+            color: Colors.black87,
+          ),
+        ),
+        SizedBox(height: 12.h),
+        DropdownButtonFormField<String>(
+          value: _selectedCurrency,
+          decoration: InputDecoration(
+            filled: true,
+            fillColor: const Color(0xFFF5F6FA),
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12),
+              borderSide: BorderSide.none,
             ),
-          ],
+          ),
+          items: ['USD', 'EUR', 'GBP', 'JPY', 'CAD', 'AUD', 'CHF', 'CNY', 'INR', 'EGP'].map((String currency) {
+            return DropdownMenuItem<String>(
+              value: currency,
+              child: Text(currency),
+            );
+          }).toList(),
+          onChanged: (String? newValue) {
+            setState(() {
+              _selectedCurrency = newValue!;
+            });
+          },
         ),
       ],
     );
@@ -307,7 +271,7 @@ class _AddExpenseScreenState extends State<AddExpenseScreen> {
             color: Colors.black87,
           ),
         ),
-        const SizedBox(height: 12),
+        SizedBox(height: 12.h),
         TextFormField(
           controller: _dateController,
           readOnly: true,
@@ -338,12 +302,12 @@ class _AddExpenseScreenState extends State<AddExpenseScreen> {
             color: Colors.black87,
           ),
         ),
-        const SizedBox(height: 12),
+        SizedBox(height: 12.h),
         GestureDetector(
           onTap: _pickImage,
           child: Container(
             width: double.infinity,
-            padding: const EdgeInsets.symmetric(vertical: 16),
+            padding: EdgeInsets.symmetric(vertical: 16.h),
             decoration: BoxDecoration(
               color: const Color(0xFFF5F6FA),
               borderRadius: BorderRadius.circular(12),
@@ -354,15 +318,15 @@ class _AddExpenseScreenState extends State<AddExpenseScreen> {
                 if (_receiptImage != null) ...[
                   Image.file(
                     _receiptImage!,
-                    width: 50,
-                    height: 50,
+                    width: 50.w,
+                    height: 50.h,
                     fit: BoxFit.cover,
                   ),
-                  const SizedBox(width: 12),
+                  SizedBox(width: 12.w),
                   const Text('Receipt attached'),
                 ] else ...[
                   const Icon(Icons.camera_alt, color: Colors.grey),
-                  const SizedBox(width: 8),
+                  SizedBox(width: 8.w),
                   const Text(
                     'Upload image',
                     style: TextStyle(color: Colors.grey),
@@ -388,10 +352,10 @@ class _AddExpenseScreenState extends State<AddExpenseScreen> {
             color: Colors.black87,
           ),
         ),
-        const SizedBox(height: 12),
+        SizedBox(height: 12.h),
         Wrap(
-          spacing: 16,
-          runSpacing: 16,
+          spacing: 16.w,
+          runSpacing: 16.h,
           children: [
             ...Category.predefinedCategories.map((category) => _buildCategoryIcon(category)),
             _buildAddCategoryIcon(),
@@ -413,8 +377,8 @@ class _AddExpenseScreenState extends State<AddExpenseScreen> {
       child: Column(
         children: [
           Container(
-            width: 60,
-            height: 60,
+            width: 60.w,
+            height: 60.h,
             decoration: BoxDecoration(
               color: isSelected ? category.color : category.color.withOpacity(0.1),
               borderRadius: BorderRadius.circular(16),
@@ -422,10 +386,10 @@ class _AddExpenseScreenState extends State<AddExpenseScreen> {
             child: Icon(
               category.icon,
               color: isSelected ? Colors.white : category.color,
-              size: 28,
+              size: 28.sp,
             ),
           ),
-          const SizedBox(height: 8),
+          SizedBox(height: 8.h),
           Text(
             category.name,
             style: TextStyle(
@@ -443,8 +407,8 @@ class _AddExpenseScreenState extends State<AddExpenseScreen> {
     return Column(
       children: [
         Container(
-          width: 60,
-          height: 60,
+          width: 60.w,
+          height: 60.h,
           decoration: BoxDecoration(
             color: Colors.grey.withOpacity(0.1),
             borderRadius: BorderRadius.circular(16),
@@ -453,13 +417,13 @@ class _AddExpenseScreenState extends State<AddExpenseScreen> {
               style: BorderStyle.solid,
             ),
           ),
-          child: const Icon(
+          child: Icon(
             Icons.add,
             color: Colors.grey,
-            size: 28,
+            size: 28.sp,
           ),
         ),
-        const SizedBox(height: 8),
+        SizedBox(height: 8.h),
         const Text(
           'Add Category',
           style: TextStyle(
@@ -474,7 +438,7 @@ class _AddExpenseScreenState extends State<AddExpenseScreen> {
   Widget _buildSaveButton() {
     return SizedBox(
       width: double.infinity,
-      height: 56,
+      height: 56.h,
       child: ElevatedButton(
         onPressed: _isLoading ? null : _saveExpense,
         style: ElevatedButton.styleFrom(

@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:intl/intl.dart';
-import '../utils/app_colors.dart';
-import '../utils/app_dimensions.dart';
 import 'custom_text_widget.dart';
 
 class BalanceItemWidget extends StatelessWidget {
@@ -29,9 +28,9 @@ class BalanceItemWidget extends StatelessWidget {
             Icon(
               icon,
               color: color,
-              size: AppDimensions.iconS,
+              size: 20.sp,
             ),
-            const SizedBox(width: AppDimensions.paddingXS),
+            SizedBox(width: 4.w),
             CustomText(
               label,
               variant: TextVariant.onPrimaryMedium,
@@ -39,7 +38,7 @@ class BalanceItemWidget extends StatelessWidget {
             ),
           ],
         ),
-        const SizedBox(height: AppDimensions.paddingXS),
+        SizedBox(height: 4.h),
         CustomText(
           '\$${NumberFormat('#,##0.00').format(amount)}',
           variant: TextVariant.onPrimaryMedium,

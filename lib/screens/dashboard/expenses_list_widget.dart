@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import '../../bloc/expense_bloc.dart';
 import '../../bloc/expense_state.dart';
 import '../../utils/app_colors.dart';
@@ -30,7 +31,7 @@ class ExpensesListWidget extends StatelessWidget {
       ),
       child: Column(
         children: [
-          const SizedBox(height: 48),
+          SizedBox(height: 60.h),
           _buildSectionHeader(),
           Expanded(
             child: _buildExpensesList(),
@@ -42,7 +43,7 @@ class ExpensesListWidget extends StatelessWidget {
 
   Widget _buildSectionHeader() {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: AppDimensions.paddingXL),
+      padding: EdgeInsets.symmetric(horizontal: 20.w),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
@@ -69,60 +70,83 @@ class ExpensesListWidget extends StatelessWidget {
     return BlocBuilder<ExpenseBloc, ExpenseState>(
       builder: (context, state) {
         if (state is ExpenseLoading) {
-          return const Center(
-            child: CircularProgressIndicator(
-              color: AppColors.primary,
-            ),
-          );
+          return const Center(child: CircularProgressIndicator());
         } else if (state is ExpenseLoaded) {
           if (state.expenses.isEmpty) {
-            return Center(
-              child: CustomText(
-                'No expenses found',
-                variant: TextVariant.bodyMedium,
-                color: AppColors.textSecondary,
-              ),
-            );
+            return _buildEmptyState();
           }
+          
           return ListView.builder(
             controller: scrollController,
-            padding: const EdgeInsets.symmetric(horizontal: AppDimensions.paddingXL),
-            itemCount: state.expenses.length + (state.hasMore ? 1 : 0),
+            padding: EdgeInsets.symmetric(
+              horizontal: 20.w,
+              vertical: 16.h,
+            ),
+            itemCount: state.expenses.length,
             itemBuilder: (context, index) {
-              if (index >= state.expenses.length) {
-                return state.isLoadingMore
-                    ? const Center(
-                        child: Padding(
-                          padding: EdgeInsets.all(AppDimensions.paddingL),
-                          child: CircularProgressIndicator(
-                            color: AppColors.primary,
-                          ),
-                        ),
-                      )
-                    : const SizedBox();
-              }
+              final expense = state.expenses[index];
               return ExpenseItemWidget(
-                expense: state.expenses[index],
+                expense: expense,
                 onTap: () {
-                  // Handle expense item tap
+                  // Handle expense tap
                 },
                 onLongPress: () {
-                  // Handle expense item long press
+                  // Handle expense long press
                 },
               );
             },
           );
         } else if (state is ExpenseError) {
           return Center(
-            child: CustomText(
-              state.message,
-              variant: TextVariant.bodyMedium,
-              color: AppColors.error,
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(
+                  Icons.error_outline,
+                  size: 64.sp,
+                  color: Colors.red,
+                ),
+                SizedBox(height: 16.h),
+                CustomText(
+                  'Error: ${state.message}',
+                  variant: TextVariant.bodyMedium,
+                  textAlign: TextAlign.center,
+                ),
+              ],
             ),
           );
         }
-        return const SizedBox();
+        
+        return const SizedBox.shrink();
       },
+    );
+  }
+
+  Widget _buildEmptyState() {
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(
+            Icons.receipt_long_outlined,
+            size: 80.sp,
+            color: AppColors.textSecondary,
+          ),
+          SizedBox(height: 16.h),
+          CustomText(
+            'No expenses yet',
+            variant: TextVariant.h3,
+            color: AppColors.textSecondary,
+          ),
+          SizedBox(height: 8.h),
+          CustomText(
+            'Tap the + button to add your first expense',
+            variant: TextVariant.bodyMedium,
+            color: AppColors.textSecondary,
+            textAlign: TextAlign.center,
+          ),
+        ],
+      ),
     );
   }
 } 

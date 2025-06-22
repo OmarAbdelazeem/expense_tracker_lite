@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import '../utils/app_colors.dart';
-import '../utils/app_dimensions.dart';
 import 'custom_action_button.dart';
 
 class CustomBottomNavigation extends StatelessWidget {
@@ -19,7 +19,7 @@ class CustomBottomNavigation extends StatelessWidget {
       color: AppColors.cardBackground,
       elevation: 20,
       child: Container(
-        height: AppDimensions.bottomNavHeight,
+        height: 65.h,
         decoration: const BoxDecoration(),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -43,7 +43,7 @@ class CustomBottomNavigation extends StatelessWidget {
       icon: Icon(
         icon,
         color: isActive ? AppColors.primary : AppColors.textSecondary,
-        size: AppDimensions.iconL,
+        size: 28.sp,
       ),
       onPressed: () {},
     );
