@@ -119,9 +119,11 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 Column(
                   mainAxisAlignment: MainAxisAlignment.start,
                   children: [
-                    DashboardHeaderWidget(
-                      selectedFilter: selectedFilter,
-                      onFilterChanged: _onFilterChanged,
+                    SizedBox(
+                      child: DashboardHeaderWidget(
+                        selectedFilter: selectedFilter,
+                        onFilterChanged: _onFilterChanged,
+                      ),
                     ),
                     Expanded(
                       child: ExpensesListWidget(

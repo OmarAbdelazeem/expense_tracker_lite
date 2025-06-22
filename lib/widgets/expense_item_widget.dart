@@ -26,37 +26,56 @@ class ExpenseItemWidget extends StatelessWidget {
     final currencyService = CurrencyService();
     final currencySymbol = currencyService.getCurrencySymbol(expense.currency);
 
-    return Container(
-      margin: EdgeInsets.only(bottom: 16.h),
-      decoration: BoxDecoration(
-        color: AppColors.cardBackground,
-        borderRadius: BorderRadius.circular(AppDimensions.radiusL),
-        boxShadow: [
-          BoxShadow(
-            color: AppColors.shadowLight,
-            blurRadius: AppDimensions.shadowBlurHigh,
-            offset: const Offset(0, 4),
-          ),
-          BoxShadow(
-            color: AppColors.shadowLight,
-            blurRadius: AppDimensions.shadowBlurLight,
-            offset: const Offset(0, 1),
-          ),
-        ],
-      ),
-      child: ListTile(
-        onTap: onTap,
-        onLongPress: onLongPress,
-        contentPadding: EdgeInsets.all(16.w),
-        leading: _buildCategoryIcon(category),
-        title: CustomText(
-          expense.category,
-          variant: TextVariant.bodyLarge,
+    return GestureDetector(
+      onTap: onTap,
+      onLongPress: onLongPress,
+      child: Container(
+        margin: EdgeInsets.only(bottom: 16.h),
+        decoration: BoxDecoration(
+          color: AppColors.cardBackground,
+          borderRadius: BorderRadius.circular(AppDimensions.radiusL),
+          boxShadow: [
+            BoxShadow(
+              color: AppColors.shadowLight,
+              blurRadius: AppDimensions.shadowBlurHigh,
+              offset: const Offset(0, 4),
+            ),
+            BoxShadow(
+              color: AppColors.shadowLight,
+              blurRadius: AppDimensions.shadowBlurLight,
+              offset: const Offset(0, 1),
+            ),
+          ],
         ),
-        subtitle: _buildSubtitle(),
-        trailing: CustomText(
-          '- $currencySymbol${NumberFormat('#,##0').format(expense.amount)}',
-          variant: TextVariant.bodyLarge,
+        padding: EdgeInsets.all(16.w),
+        child: Row(
+          children: [
+            _buildCategoryIcon(category),
+            SizedBox(width: 16.w),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      CustomText(
+                        expense.category,
+                        variant: TextVariant.bodyLarge,
+                        fontWeight: FontWeight.w500,
+                      ),
+                      CustomText(
+                        '- $currencySymbol${NumberFormat('#,##0').format(expense.amount)}',
+                        variant: TextVariant.bodyLarge,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ],
+                  ),
+                  _buildSubtitle(),
+                ],
+              ),
+            ),
+          ],
         ),
       ),
     );
@@ -64,14 +83,16 @@ class ExpenseItemWidget extends StatelessWidget {
 
   Widget _buildCategoryIcon(Category? category) {
     return Container(
-      width: 52.w,
-      height: 52.h,
+      width: 44.w,
+      height: 44.h,
       decoration: BoxDecoration(
-        color: category?.color.withOpacity(0.12) ?? AppColors.textSecondary.withOpacity(0.12),
-        borderRadius: BorderRadius.circular(AppDimensions.radiusL),
+        color: category?.color.withOpacity(0.12) ??
+            AppColors.textSecondary.withOpacity(0.12),
+        shape: BoxShape.circle,
         boxShadow: [
           BoxShadow(
-            color: (category?.color ?? AppColors.textSecondary).withOpacity(0.15),
+            color:
+                (category?.color ?? AppColors.textSecondary).withOpacity(0.15),
             blurRadius: AppDimensions.shadowBlurLight,
             offset: const Offset(0, 2),
           ),
@@ -86,20 +107,35 @@ class ExpenseItemWidget extends StatelessWidget {
   }
 
   Widget _buildSubtitle() {
+    // Format date to match screenshot: "Today 12:00 PM"
+    final now = DateTime.now();
+    final isToday = expense.date.year == now.year && 
+                   expense.date.month == now.month && 
+                   expense.date.day == now.day;
+    
+    final dateText = isToday 
+        ? 'Today ${DateFormat('h:mm a').format(expense.date)}'
+        : DateFormat('MMM dd, yyyy h:mm a').format(expense.date);
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         SizedBox(height: 4.h),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            CustomText(
+              'Manually',
+              variant: TextVariant.bodySmall,
+            ),
         CustomText(
-          'Manually',
+          dateText,
           variant: TextVariant.bodySmall,
         ),
-        SizedBox(height: 2.h),
-        CustomText(
-          DateFormat('Today hh:mm a').format(expense.date),
-          variant: TextVariant.bodySmall,
+          ],
         ),
+      
       ],
     );
   }
-} 
+}

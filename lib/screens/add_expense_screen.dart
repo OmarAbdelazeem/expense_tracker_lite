@@ -6,9 +6,13 @@ import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
 import '../bloc/expense_bloc.dart';
 import '../bloc/expense_event.dart';
+import '../bloc/expense_state.dart';
 import '../models/expense.dart';
 import '../models/category.dart';
 import '../services/currency_service.dart';
+import '../utils/app_colors.dart';
+import '../utils/app_dimensions.dart';
+import '../widgets/custom_text_widget.dart';
 
 class AddExpenseScreen extends StatefulWidget {
   const AddExpenseScreen({super.key});
@@ -50,7 +54,7 @@ class _AddExpenseScreenState extends State<AddExpenseScreen> {
       firstDate: DateTime(2020),
       lastDate: DateTime.now(),
     );
-    
+
     if (date != null) {
       setState(() {
         _selectedDate = date;
@@ -105,8 +109,9 @@ class _AddExpenseScreenState extends State<AddExpenseScreen> {
 
     try {
       final amount = double.parse(_amountController.text);
-      final convertedAmount = await _currencyService.convertToUSD(amount, _selectedCurrency);
-      
+      final convertedAmount =
+          await _currencyService.convertToUSD(amount, _selectedCurrency);
+
       final expense = Expense(
         id: DateTime.now().millisecondsSinceEpoch.toString(),
         category: _selectedCategory!.name,
@@ -118,7 +123,7 @@ class _AddExpenseScreenState extends State<AddExpenseScreen> {
       );
 
       context.read<ExpenseBloc>().add(AddExpense(expense: expense));
-      
+
       Navigator.of(context).pop(true);
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -134,21 +139,18 @@ class _AddExpenseScreenState extends State<AddExpenseScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF5F6FA),
+      backgroundColor: Colors.white,
       appBar: AppBar(
-        backgroundColor: const Color(0xFFF5F6FA),
+        backgroundColor: Colors.white,
         elevation: 0,
         leading: IconButton(
           icon: const Icon(Icons.arrow_back, color: Colors.black),
-          onPressed: () => Navigator.pop(context),
+          onPressed: () => Navigator.of(context).pop(),
         ),
-        title: const Text(
+        title: CustomText(
           'Add Expense',
-          style: TextStyle(
-            color: Colors.black,
-            fontSize: 18,
-            fontWeight: FontWeight.w600,
-          ),
+          variant: TextVariant.h4,
+          color: AppColors.textPrimary,
         ),
         centerTitle: true,
       ),
@@ -159,17 +161,18 @@ class _AddExpenseScreenState extends State<AddExpenseScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              _buildCategorySelection(),
+              SizedBox(height: 24.h),
               _buildAmountField(),
               SizedBox(height: 24.h),
-              _buildCurrencyField(),
-              SizedBox(height: 24.h),
               _buildDateField(),
-              SizedBox(height: 32.h),
-              _buildCategoryIcons(),
               SizedBox(height: 24.h),
               _buildReceiptUpload(),
+              SizedBox(height: 24.h),
+              _buildCategoryIcons(),
               SizedBox(height: 32.h),
               _buildSaveButton(),
+              SizedBox(height: 32.h),
             ],
           ),
         ),
@@ -177,83 +180,131 @@ class _AddExpenseScreenState extends State<AddExpenseScreen> {
     );
   }
 
-  Widget _buildAmountField() {
+  Widget _buildCategorySelection() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text(
-          'Amount',
-          style: TextStyle(
-            fontSize: 16,
-            fontWeight: FontWeight.w600,
-            color: Colors.black87,
-          ),
+        CustomText(
+          'Categories',
+          variant: TextVariant.labelLarge,
         ),
         SizedBox(height: 12.h),
-        TextFormField(
-          controller: _amountController,
-          keyboardType: const TextInputType.numberWithOptions(decimal: true),
-          decoration: InputDecoration(
-            hintText: '0.00',
-            prefixText: '\$ ',
-            filled: true,
-            fillColor: const Color(0xFFF5F6FA),
-            border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(12),
-              borderSide: BorderSide.none,
+        Container(
+          width: double.infinity,
+          padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 2.h),
+          decoration: BoxDecoration(
+            color: const Color(0xFFF5F6FA),
+            borderRadius: BorderRadius.circular(12.r),
+          ),
+          child: DropdownButtonHideUnderline(
+            child: DropdownButton<Category>(
+              value: _selectedCategory,
+              hint: CustomText(
+                'Entertainment',
+                variant: TextVariant.bodyMedium,
+                color: Colors.grey,
+              ),
+              icon: const Icon(Icons.keyboard_arrow_down),
+              items: Category.predefinedCategories.map((category) {
+                return DropdownMenuItem<Category>(
+                  value: category,
+                  child: CustomText(
+                    category.name,
+                    variant: TextVariant.bodyMedium,
+                  ),
+                );
+              }).toList(),
+              onChanged: (category) {
+                setState(() {
+                  _selectedCategory = category;
+                });
+              },
             ),
           ),
-          validator: (value) {
-            if (value == null || value.isEmpty) {
-              return 'Please enter an amount';
-            }
-            if (double.tryParse(value) == null) {
-              return 'Please enter a valid number';
-            }
-            if (double.parse(value) <= 0) {
-              return 'Amount must be greater than 0';
-            }
-            return null;
-          },
         ),
       ],
     );
   }
 
-  Widget _buildCurrencyField() {
+  Widget _buildAmountField() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text(
-          'Currency',
-          style: TextStyle(
-            fontSize: 16,
-            fontWeight: FontWeight.w600,
-            color: Colors.black87,
-          ),
+        CustomText(
+          'Amount',
+          variant: TextVariant.labelLarge,
         ),
         SizedBox(height: 12.h),
-        DropdownButtonFormField<String>(
-          value: _selectedCurrency,
-          decoration: InputDecoration(
-            filled: true,
-            fillColor: const Color(0xFFF5F6FA),
-            border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(12),
-              borderSide: BorderSide.none,
+        Row(
+          children: [
+            Expanded(
+              flex: 3,
+              child: TextFormField(
+                controller: _amountController,
+                keyboardType: TextInputType.number,
+                style: TextStyle(
+                  fontFamily: 'Poppins',
+                  fontSize: 16.sp,
+                ),
+                decoration: InputDecoration(
+                  hintText: '\$50,000',
+                  hintStyle: TextStyle(
+                    fontFamily: 'Poppins',
+                    color: Colors.grey,
+                    fontSize: 16.sp,
+                  ),
+                  contentPadding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 12.h),
+                  filled: true,
+                  fillColor: const Color(0xFFF5F6FA),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12.r),
+                    borderSide: BorderSide.none,
+                  ),
+                ),
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return 'Please enter amount';
+                  }
+                  if (double.tryParse(value) == null) {
+                    return 'Please enter valid amount';
+                  }
+                  return null;
+                },
+              ),
             ),
-          ),
-          items: ['USD', 'EUR', 'GBP', 'JPY', 'CAD', 'AUD', 'CHF', 'CNY', 'INR', 'EGP'].map((String currency) {
-            return DropdownMenuItem<String>(
-              value: currency,
-              child: Text(currency),
-            );
-          }).toList(),
-          onChanged: (String? newValue) {
-            setState(() {
-              _selectedCurrency = newValue!;
-            });
-          },
+            SizedBox(width: 12.w),
+            Expanded(
+              flex: 1,
+              child: Container(
+                padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 2.h),
+                decoration: BoxDecoration(
+                  color: const Color(0xFFF5F6FA),
+                  borderRadius: BorderRadius.circular(12.r),
+                ),
+                child: DropdownButtonHideUnderline(
+                  child: DropdownButton<String>(
+                    value: _selectedCurrency,
+                    items: CurrencyService.supportedCurrencies.map((currency) {
+                      return DropdownMenuItem<String>(
+                        value: currency,
+                        child: CustomText(
+                          currency,
+                          variant: TextVariant.bodyMedium,
+                        ),
+                      );
+                    }).toList(),
+                    onChanged: (currency) {
+                      if (currency != null) {
+                        setState(() {
+                          _selectedCurrency = currency;
+                        });
+                      }
+                    },
+                  ),
+                ),
+              ),
+            ),
+          ],
         ),
       ],
     );
@@ -263,25 +314,27 @@ class _AddExpenseScreenState extends State<AddExpenseScreen> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text(
+        CustomText(
           'Date',
-          style: TextStyle(
-            fontSize: 16,
-            fontWeight: FontWeight.w600,
-            color: Colors.black87,
-          ),
+          variant: TextVariant.labelLarge,
         ),
         SizedBox(height: 12.h),
         TextFormField(
           controller: _dateController,
           readOnly: true,
           onTap: _pickDate,
+          style: TextStyle(
+            fontFamily: 'Poppins',
+            fontSize: 16.sp,
+          ),
           decoration: InputDecoration(
-            suffixIcon: const Icon(Icons.calendar_today, color: Colors.grey),
+            suffixIcon:
+                Icon(Icons.calendar_today, color: Colors.grey, size: 20.sp),
+            contentPadding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 12.h),
             filled: true,
             fillColor: const Color(0xFFF5F6FA),
             border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(12),
+              borderRadius: BorderRadius.circular(12.r),
               borderSide: BorderSide.none,
             ),
           ),
@@ -294,26 +347,22 @@ class _AddExpenseScreenState extends State<AddExpenseScreen> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text(
+        CustomText(
           'Attach Receipt',
-          style: TextStyle(
-            fontSize: 16,
-            fontWeight: FontWeight.w600,
-            color: Colors.black87,
-          ),
+          variant: TextVariant.labelLarge,
         ),
         SizedBox(height: 12.h),
         GestureDetector(
           onTap: _pickImage,
           child: Container(
             width: double.infinity,
-            padding: EdgeInsets.symmetric(vertical: 16.h),
+            padding: EdgeInsets.symmetric(vertical: 12.h, horizontal: 16.w),
             decoration: BoxDecoration(
               color: const Color(0xFFF5F6FA),
-              borderRadius: BorderRadius.circular(12),
+              borderRadius: BorderRadius.circular(12.r),
             ),
             child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 if (_receiptImage != null) ...[
                   Image.file(
@@ -323,14 +372,17 @@ class _AddExpenseScreenState extends State<AddExpenseScreen> {
                     fit: BoxFit.cover,
                   ),
                   SizedBox(width: 12.w),
-                  const Text('Receipt attached'),
-                ] else ...[
-                  const Icon(Icons.camera_alt, color: Colors.grey),
-                  SizedBox(width: 8.w),
-                  const Text(
-                    'Upload image',
-                    style: TextStyle(color: Colors.grey),
+                  CustomText(
+                    'Receipt attached',
+                    variant: TextVariant.bodyMedium,
                   ),
+                ] else ...[
+                  CustomText(
+                    'Upload image',
+                    variant: TextVariant.bodyMedium,
+                    color: Colors.grey,
+                  ),
+                  Icon(Icons.camera_alt, color: Colors.grey, size: 24.sp),
                 ],
               ],
             ),
@@ -344,20 +396,18 @@ class _AddExpenseScreenState extends State<AddExpenseScreen> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text(
+        CustomText(
           'Categories',
-          style: TextStyle(
-            fontSize: 16,
-            fontWeight: FontWeight.w600,
-            color: Colors.black87,
-          ),
+          variant: TextVariant.labelLarge,
         ),
         SizedBox(height: 12.h),
         Wrap(
+         
           spacing: 16.w,
           runSpacing: 16.h,
           children: [
-            ...Category.predefinedCategories.map((category) => _buildCategoryIcon(category)),
+            ...Category.predefinedCategories
+                .map((category) => _buildCategoryIcon(category)),
             _buildAddCategoryIcon(),
           ],
         ),
@@ -367,7 +417,7 @@ class _AddExpenseScreenState extends State<AddExpenseScreen> {
 
   Widget _buildCategoryIcon(Category category) {
     final isSelected = _selectedCategory == category;
-    
+
     return GestureDetector(
       onTap: () {
         setState(() {
@@ -377,11 +427,12 @@ class _AddExpenseScreenState extends State<AddExpenseScreen> {
       child: Column(
         children: [
           Container(
-            width: 60.w,
-            height: 60.h,
+            width: 45.w,
+            height: 45.h,
             decoration: BoxDecoration(
-              color: isSelected ? category.color : category.color.withOpacity(0.1),
-              borderRadius: BorderRadius.circular(16),
+              color:
+                  isSelected ? category.color : category.color.withOpacity(0.1),
+              shape: BoxShape.circle,
             ),
             child: Icon(
               category.icon,
@@ -390,13 +441,11 @@ class _AddExpenseScreenState extends State<AddExpenseScreen> {
             ),
           ),
           SizedBox(height: 8.h),
-          Text(
+          CustomText(
             category.name,
-            style: TextStyle(
-              fontSize: 12,
-              color: isSelected ? category.color : Colors.grey,
-              fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
-            ),
+            variant: TextVariant.bodySmall,
+            color: isSelected ? category.color : Colors.grey,
+            fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
           ),
         ],
       ),
@@ -407,11 +456,11 @@ class _AddExpenseScreenState extends State<AddExpenseScreen> {
     return Column(
       children: [
         Container(
-          width: 60.w,
-          height: 60.h,
+          width: 45.w,
+          height: 45.h,
           decoration: BoxDecoration(
             color: Colors.grey.withOpacity(0.1),
-            borderRadius: BorderRadius.circular(16),
+            borderRadius: BorderRadius.circular(16.r),
             border: Border.all(
               color: Colors.grey.withOpacity(0.3),
               style: BorderStyle.solid,
@@ -424,12 +473,10 @@ class _AddExpenseScreenState extends State<AddExpenseScreen> {
           ),
         ),
         SizedBox(height: 8.h),
-        const Text(
+        CustomText(
           'Add Category',
-          style: TextStyle(
-            fontSize: 12,
-            color: Colors.grey,
-          ),
+          variant: TextVariant.bodySmall,
+          color: Colors.grey,
         ),
       ],
     );
@@ -444,20 +491,18 @@ class _AddExpenseScreenState extends State<AddExpenseScreen> {
         style: ElevatedButton.styleFrom(
           backgroundColor: const Color(0xff1d55f3),
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(16),
+            borderRadius: BorderRadius.circular(16.r),
           ),
         ),
         child: _isLoading
             ? const CircularProgressIndicator(color: Colors.white)
-            : const Text(
+            : CustomText(
                 'Save',
-                style: TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.w600,
-                  color: Colors.white,
-                ),
+                variant: TextVariant.buttonLarge,
+                color: Colors.white,
+                fontWeight: FontWeight.w400,
               ),
       ),
     );
   }
-} 
+}

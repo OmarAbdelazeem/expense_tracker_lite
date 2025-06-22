@@ -28,10 +28,16 @@ class DashboardHeaderWidget extends StatelessWidget {
       padding: EdgeInsets.all(20.w),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          _buildProfileSection(),
-          SizedBox(width: 16.w),
-          Expanded(child: _buildUserGreeting()),
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              _buildProfileSection(),
+              SizedBox(width: 16.w),
+              _buildUserGreeting(),
+            ],
+          ),
           _buildFilterDropdown(),
         ],
       ),
@@ -68,11 +74,10 @@ class DashboardHeaderWidget extends StatelessWidget {
   Widget _buildUserGreeting() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
-      mainAxisAlignment: MainAxisAlignment.center,
       children: [
         CustomText('Good Morning', variant: TextVariant.onPrimarySmall),
-        SizedBox(height: 8.h),
-        CustomText('Shihab Rahman', variant: TextVariant.onPrimaryLarge),
+        SizedBox(height: 4.h),
+        CustomText('Shihab Rahman', variant: TextVariant.onPrimaryLarge,fontWeight: FontWeight.w500,),
       ],
     );
   }
@@ -90,26 +95,29 @@ class DashboardHeaderWidget extends StatelessWidget {
           padding: EdgeInsets.only(right: 10),
           child: Icon(Icons.keyboard_arrow_down, color: AppColors.textPrimary),
         ),
-        items:
-            ['This month', 'Last 7 Days'].map((String value) {
-              return DropdownMenuItem<String>(
-                value: value,
-                child: Padding(
-                  padding: EdgeInsets.symmetric(
-                    horizontal: 16.w,
-                    vertical: 0,
-                  ),
-                  child: CustomText(value, variant: TextVariant.labelMedium),
-                ),
-              );
-            }).toList(),
+        items: ['This month', 'Last 7 Days'].map((String value) {
+          return DropdownMenuItem<String>(
+            value: value,
+            child: Padding(
+              padding: EdgeInsets.symmetric(
+                horizontal: 6.w,
+                vertical: 0,
+              ),
+              child: CustomText(value, variant: TextVariant.labelMedium),
+            ),
+          );
+        }).toList(),
         onChanged: (value) {
           if (value != null) {
             onFilterChanged(value);
           }
         },
         dropdownColor: AppColors.cardBackground,
-        style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
+        style: const TextStyle(
+          fontFamily: 'Poppins',
+          fontSize: 14,
+          fontWeight: FontWeight.w500,
+        ),
       ),
     );
   }

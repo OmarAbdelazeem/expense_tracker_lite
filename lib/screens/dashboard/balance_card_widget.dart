@@ -105,6 +105,7 @@ class BalanceCardWidget extends StatelessWidget {
 
   Widget _buildBalanceAmount(double totalBalance) {
     return CustomText(
+      fontWeight: FontWeight.w600,
       '\$${NumberFormat('#,##0.00').format(totalBalance)}',
       variant: TextVariant.balanceAmount,
     );

@@ -31,7 +31,7 @@ class ExpensesListWidget extends StatelessWidget {
       ),
       child: Column(
         children: [
-          SizedBox(height: 60.h),
+          SizedBox(height: 70.h),
           _buildSectionHeader(),
           Expanded(
             child: _buildExpensesList(),

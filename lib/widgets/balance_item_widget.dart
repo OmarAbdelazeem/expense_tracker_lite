@@ -23,30 +23,52 @@ class BalanceItemWidget extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Row(
-          mainAxisAlignment: MainAxisAlignment.center,
+          mainAxisAlignment: MainAxisAlignment.start,
           children: [
-            Icon(
-              icon,
-              color: color,
-              size: 20.sp,
+            Container(
+              decoration: BoxDecoration(
+                color: color.withOpacity(0.1),
+                shape: BoxShape.circle,
+              ),
+              child: Icon(
+                icon,
+                color: color,
+                size: 20.sp,
+              ),
             ),
-            SizedBox(width: 4.w),
+            4.horizontalSpace,
             CustomText(
               label,
               variant: TextVariant.onPrimaryMedium,
               color: color,
+              fontSize: 18,
+              fontWeight: FontWeight.w400,
             ),
           ],
         ),
-        SizedBox(height: 4.h),
-        CustomText(
-          '\$${NumberFormat('#,##0.00').format(amount)}',
-          variant: TextVariant.onPrimaryMedium,
-          color: color,
-          fontSize: 18,
-          fontWeight: FontWeight.w600,
+        2.verticalSpace,
+        Row(
+          mainAxisAlignment: MainAxisAlignment.start,
+          children: [
+            8.horizontalSpace,
+            CustomText(
+              '\$',
+              variant: TextVariant.onPrimaryMedium,
+              color: color,
+              fontSize: 18,
+              fontWeight: FontWeight.w600,
+            ),
+            4.horizontalSpace,
+            CustomText(
+              '${NumberFormat('#,##0.00').format(amount)}',
+              variant: TextVariant.onPrimaryMedium,
+              color: color,
+              fontSize: 18,
+              fontWeight: FontWeight.w600,
+            ),
+          ],
         ),
       ],
     );
   }
-} 
+}
