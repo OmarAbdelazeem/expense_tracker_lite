@@ -1,15 +1,18 @@
+import 'package:expense_tracker_lite/widgets/custom_bottom_navigation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import '../bloc/expense_bloc.dart';
 import '../bloc/expense_event.dart';
+import '../bloc/expense_state.dart';
 import '../utils/app_colors.dart';
+import '../utils/app_animations.dart';
 import 'add_expense_screen.dart';
 import 'dashboard/dashboard_header_widget.dart';
 import 'dashboard/balance_card_widget.dart';
 import 'dashboard/expenses_list_widget.dart';
-import '../widgets/custom_bottom_navigation.dart';
+import '../widgets/pdf_export_widget.dart';
 
 class DashboardScreen extends StatefulWidget {
   const DashboardScreen({super.key});
@@ -56,19 +59,19 @@ class _DashboardScreenState extends State<DashboardScreen> {
     }
 
     context.read<ExpenseBloc>().add(
-      LoadExpenses(startDate: startDate, endDate: endDate),
-    );
+          LoadExpenses(startDate: startDate, endDate: endDate),
+        );
   }
 
   void _onScroll() {
     if (_scrollController.position.pixels ==
         _scrollController.position.maxScrollExtent) {
       context.read<ExpenseBloc>().add(
-        LoadMoreExpenses(
-          startDate: null,
-          endDate: null,
-        ),
-      );
+            LoadMoreExpenses(
+              startDate: null,
+              endDate: null,
+            ),
+          );
     }
   }
 
@@ -81,12 +84,50 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
   Future<void> _handleAddExpense() async {
     final result = await Navigator.of(context).push(
-      MaterialPageRoute(
-        builder: (context) => const AddExpenseScreen(),
-      ),
+      AppAnimations.slideUpTransition(const AddExpenseScreen()),
     );
     if (result == true) {
       _loadInitialData();
+    }
+  }
+
+  Future<void> _handlePdfExport() async {
+    final state = context.read<ExpenseBloc>().state;
+    if (state is ExpenseLoaded) {
+      // Calculate current date range based on selected filter
+      final now = DateTime.now();
+      DateTimeRange? dateRange;
+
+      switch (selectedFilter) {
+        case 'This month':
+          dateRange = DateTimeRange(
+            start: DateTime(now.year, now.month, 1),
+            end: DateTime(now.year, now.month + 1, 1)
+                .subtract(const Duration(days: 1)),
+          );
+          break;
+        case 'Last 7 Days':
+          dateRange = DateTimeRange(
+            start: now.subtract(const Duration(days: 7)),
+            end: now,
+          );
+          break;
+      }
+
+      await showModalBottomSheet(
+        context: context,
+        isScrollControlled: true,
+        backgroundColor: Colors.transparent,
+        builder: (context) => Padding(
+          padding: EdgeInsets.only(
+            bottom: MediaQuery.of(context).viewInsets.bottom,
+          ),
+          child: PdfExportWidget(
+            expenses: state.expenses,
+            dateRange: dateRange,
+          ),
+        ),
+      );
     }
   }
 
@@ -114,7 +155,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 // White background for lower section
                 Container(
                   height: 0.6.sh,
-                  decoration: const BoxDecoration(color: AppColors.cardBackground),
+                  decoration:
+                      const BoxDecoration(color: AppColors.cardBackground),
                 ),
                 Column(
                   mainAxisAlignment: MainAxisAlignment.start,
@@ -144,10 +186,37 @@ class _DashboardScreenState extends State<DashboardScreen> {
           ),
         ],
       ),
+          floatingActionButton: _buildPdfButton(),
       bottomNavigationBar: CustomBottomNavigation(
         onAddPressed: _handleAddExpense,
       ),
-      floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
+    );
+  }
+
+   Widget _buildPdfButton() {
+    return Container(
+      decoration: BoxDecoration(
+        shape: BoxShape.circle,
+        boxShadow: [
+          BoxShadow(
+            color: AppColors.shadowMedium,
+            blurRadius: 15,
+            offset: const Offset(0, 8),
+          ),
+        ],
+      ),
+      child: FloatingActionButton(
+        onPressed: ()=>_handlePdfExport(),
+        backgroundColor: AppColors.cardBackground,
+        foregroundColor: AppColors.primary,
+        elevation: 0,
+        heroTag: "pdf_export",
+        child: Icon(
+          Icons.picture_as_pdf,
+          size: 28.sp,
+          color: AppColors.primary,
+        ),
+      ),
     );
   }
 }

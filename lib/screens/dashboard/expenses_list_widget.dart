@@ -7,6 +7,7 @@ import '../../utils/app_colors.dart';
 import '../../utils/app_dimensions.dart';
 import '../../widgets/expense_item_widget.dart';
 import '../../widgets/custom_text_widget.dart';
+import '../../widgets/shimmer_widget.dart';
 
 class ExpensesListWidget extends StatelessWidget {
   final ScrollController scrollController;
@@ -70,7 +71,7 @@ class ExpensesListWidget extends StatelessWidget {
     return BlocBuilder<ExpenseBloc, ExpenseState>(
       builder: (context, state) {
         if (state is ExpenseLoading) {
-          return const Center(child: CircularProgressIndicator());
+          return _buildLoadingState();
         } else if (state is ExpenseLoaded) {
           if (state.expenses.isEmpty) {
             return _buildEmptyState();
@@ -87,6 +88,7 @@ class ExpensesListWidget extends StatelessWidget {
               final expense = state.expenses[index];
               return ExpenseItemWidget(
                 expense: expense,
+                index: index,
                 onTap: () {
                   // Handle expense tap
                 },
@@ -118,6 +120,103 @@ class ExpensesListWidget extends StatelessWidget {
         }
         
         return const SizedBox.shrink();
+      },
+    );
+  }
+
+  Widget _buildLoadingState() {
+    return ListView.builder(
+      padding: EdgeInsets.symmetric(
+        horizontal: 20.w,
+        vertical: 16.h,
+      ),
+      itemCount: 5, // Show 5 skeleton items
+      itemBuilder: (context, index) {
+        return ShimmerWidget(
+          child: Container(
+            margin: EdgeInsets.only(bottom: 16.h),
+            padding: EdgeInsets.all(16.w),
+            decoration: BoxDecoration(
+              color: AppColors.cardBackground,
+              borderRadius: BorderRadius.circular(AppDimensions.radiusL),
+              boxShadow: [
+                BoxShadow(
+                  color: AppColors.shadowLight,
+                  blurRadius: AppDimensions.shadowBlurHigh,
+                  offset: const Offset(0, 4),
+                ),
+              ],
+            ),
+            child: Row(
+              children: [
+                // Skeleton category icon
+                Container(
+                  width: 44.w,
+                  height: 44.h,
+                  decoration: BoxDecoration(
+                    color: AppColors.textSecondary.withOpacity(0.3),
+                    shape: BoxShape.circle,
+                  ),
+                ),
+                SizedBox(width: 16.w),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          // Skeleton category name
+                          Container(
+                            width: 80.w,
+                            height: 16.h,
+                            decoration: BoxDecoration(
+                              color: AppColors.textSecondary.withOpacity(0.3),
+                              borderRadius: BorderRadius.circular(8.r),
+                            ),
+                          ),
+                          // Skeleton amount
+                          Container(
+                            width: 60.w,
+                            height: 16.h,
+                            decoration: BoxDecoration(
+                              color: AppColors.textSecondary.withOpacity(0.3),
+                              borderRadius: BorderRadius.circular(8.r),
+                            ),
+                          ),
+                        ],
+                      ),
+                      SizedBox(height: 8.h),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          // Skeleton "Manually" text
+                          Container(
+                            width: 50.w,
+                            height: 12.h,
+                            decoration: BoxDecoration(
+                              color: AppColors.textSecondary.withOpacity(0.3),
+                              borderRadius: BorderRadius.circular(6.r),
+                            ),
+                          ),
+                          // Skeleton date
+                          Container(
+                            width: 70.w,
+                            height: 12.h,
+                            decoration: BoxDecoration(
+                              color: AppColors.textSecondary.withOpacity(0.3),
+                              borderRadius: BorderRadius.circular(6.r),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+        );
       },
     );
   }

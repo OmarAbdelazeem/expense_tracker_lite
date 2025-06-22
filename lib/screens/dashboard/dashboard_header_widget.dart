@@ -26,19 +26,25 @@ class DashboardHeaderWidget extends StatelessWidget {
         ),
       ),
       padding: EdgeInsets.all(20.w),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      child: Column(
         children: [
           Row(
             crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              _buildProfileSection(),
-              SizedBox(width: 16.w),
-              _buildUserGreeting(),
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  _buildProfileSection(),
+                  SizedBox(width: 16.w),
+                  _buildUserGreeting(),
+                ],
+              ),
+              _buildFilterDropdown(),
             ],
           ),
-          _buildFilterDropdown(),
+          // SizedBox(height: 20.h),
+          // _buildActionRow(),
         ],
       ),
     );
@@ -121,4 +127,6 @@ class DashboardHeaderWidget extends StatelessWidget {
       ),
     );
   }
+
+
 }

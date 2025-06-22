@@ -6,7 +6,6 @@ import 'bloc/expense_event.dart';
 import 'services/storage_service.dart';
 import 'services/currency_service.dart';
 import 'screens/dashboard_screen.dart';
-import 'utils/sample_data.dart';
 import 'utils/app_colors.dart';
 
 void main() async {
@@ -14,14 +13,6 @@ void main() async {
   
   // Initialize storage
   await StorageService.init();
-  
-  // Add sample data if no expenses exist
-  final storageService = StorageService();
-  if (storageService.getAllExpenses().isEmpty) {
-    await SampleData.addSampleExpenses((expense) async {
-      await storageService.addExpense(expense);
-    });
-  }
   
   runApp(const MainApp());
 }

@@ -6,11 +6,60 @@ import '../../bloc/expense_bloc.dart';
 import '../../bloc/expense_state.dart';
 import '../../utils/app_colors.dart';
 import '../../utils/app_dimensions.dart';
+import '../../utils/app_animations.dart';
 import '../../widgets/balance_item_widget.dart';
 import '../../widgets/custom_text_widget.dart';
 
-class BalanceCardWidget extends StatelessWidget {
+class BalanceCardWidget extends StatefulWidget {
   const BalanceCardWidget({super.key});
+
+  @override
+  State<BalanceCardWidget> createState() => _BalanceCardWidgetState();
+}
+
+class _BalanceCardWidgetState extends State<BalanceCardWidget>
+    with SingleTickerProviderStateMixin {
+  late AnimationController _animationController;
+  late Animation<double> _scaleAnimation;
+  late Animation<double> _fadeAnimation;
+
+  @override
+  void initState() {
+    super.initState();
+    _animationController = AnimationController(
+      duration: AppAnimations.medium,
+      vsync: this,
+    );
+
+    _scaleAnimation = Tween<double>(
+      begin: 0.9,
+      end: 1.0,
+    ).animate(CurvedAnimation(
+      parent: _animationController,
+      curve: AppAnimations.bounceCurve,
+    ));
+
+    _fadeAnimation = Tween<double>(
+      begin: 0.0,
+      end: 1.0,
+    ).animate(CurvedAnimation(
+      parent: _animationController,
+      curve: AppAnimations.defaultCurve,
+    ));
+
+    // Start entrance animation
+    Future.delayed(const Duration(milliseconds: 200), () {
+      if (mounted) {
+        _animationController.forward();
+      }
+    });
+  }
+
+  @override
+  void dispose() {
+    _animationController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -25,35 +74,46 @@ class BalanceCardWidget extends StatelessWidget {
 
         double totalBalance = totalIncome - totalExpenses;
 
-        return Container(
-          height: 200.h,
-          margin: EdgeInsets.symmetric(horizontal: 20.w),
-          decoration: BoxDecoration(
-            color: AppColors.primaryLight,
-            borderRadius: BorderRadius.circular(AppDimensions.radiusXL),
-            border: Border.all(
-              color: AppColors.borderMedium,
-              width: 1,
-            ),
-            boxShadow: [
-              BoxShadow(
-                color: AppColors.shadowDark,
-                blurRadius: AppDimensions.shadowBlurHigh,
-                offset: const Offset(0, 10),
+        return AnimatedBuilder(
+          animation: _animationController,
+          builder: (context, child) {
+            return FadeTransition(
+              opacity: _fadeAnimation,
+              child: ScaleTransition(
+                scale: _scaleAnimation,
+                child: Container(
+                  height: 200.h,
+                  margin: EdgeInsets.symmetric(horizontal: 20.w),
+                  decoration: BoxDecoration(
+                    color: AppColors.primaryLight,
+                    borderRadius: BorderRadius.circular(AppDimensions.radiusXL),
+                    border: Border.all(
+                      color: AppColors.borderMedium,
+                      width: 1,
+                    ),
+                    boxShadow: [
+                      BoxShadow(
+                        color: AppColors.shadowDark,
+                        blurRadius: AppDimensions.shadowBlurHigh,
+                        offset: const Offset(0, 10),
+                      ),
+                      BoxShadow(
+                        color: AppColors.borderLight,
+                        blurRadius: 10,
+                        offset: const Offset(0, -5),
+                      ),
+                    ],
+                  ),
+                  child: Stack(
+                    children: [
+                      _buildMoreOptionsButton(),
+                      _buildBalanceContent(totalBalance, totalIncome, totalExpenses),
+                    ],
+                  ),
+                ),
               ),
-              BoxShadow(
-                color: AppColors.borderLight,
-                blurRadius: 10,
-                offset: const Offset(0, -5),
-              ),
-            ],
-          ),
-          child: Stack(
-            children: [
-              _buildMoreOptionsButton(),
-              _buildBalanceContent(totalBalance, totalIncome, totalExpenses),
-            ],
-          ),
+            );
+          },
         );
       },
     );
